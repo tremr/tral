@@ -30,6 +30,11 @@ namespace Tral
 		~List();
 
 		std::string get_string() const;
+
+	private:
+		class ListImpl;
+
+		ListImpl* _impl;
 	};
 
 } // namespace Tral

@@ -13,35 +13,21 @@
 // limitations under the License.
 
 
-#include "../include/list.h"
-#include "src/IndexedContainer.h"
+#include "IndexedString.h"
 
 
 namespace Tral
 {
 
-	class List::ListImpl
+	IndexedString::IndexedString()
+		: _offset( 0 )
+		, _value()
+		, _filter_links()
 	{
-	private:
-		IndexedContainer _conteiner;
-	};
-
-
-	List::List()
-		: _impl( new ListImpl )
-	{}
-
-
-	List::~List()
-	{
-		delete _impl;
 	}
 
-	std::string List::get_string() const
+	IndexedString::~IndexedString()
 	{
-		return "<font style='color:#00A900;background-color:#FF0000'>Mar 26 06:52:59 <font style='color:#6495ED;background-color:#FFA500'>marked fragment</font> 2639.118 1677 filtered fragment</font>";
 	}
 
-
-} // namespace Tral
-
+} /* namespace Tral */

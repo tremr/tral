@@ -13,35 +13,33 @@
 // limitations under the License.
 
 
-#include "../include/list.h"
-#include "src/IndexedContainer.h"
+
+#ifndef __TRAL_INDEXEDSTRING_H__
+#define __TRAL_INDEXEDSTRING_H__
+
+
+#include <vector>
+#include <string>
 
 
 namespace Tral
 {
 
-	class List::ListImpl
+	class IndexedString
 	{
+	public:
+		IndexedString();
+		~IndexedString();
+
 	private:
-		IndexedContainer _conteiner;
+		typedef int FilterLink;
+		typedef std::vector<FilterLink> FilterLinkList;
+
+		unsigned       _offset;
+		std::string    _value;
+		FilterLinkList _filter_links;
 	};
-
-
-	List::List()
-		: _impl( new ListImpl )
-	{}
-
-
-	List::~List()
-	{
-		delete _impl;
-	}
-
-	std::string List::get_string() const
-	{
-		return "<font style='color:#00A900;background-color:#FF0000'>Mar 26 06:52:59 <font style='color:#6495ED;background-color:#FFA500'>marked fragment</font> 2639.118 1677 filtered fragment</font>";
-	}
-
 
 } // namespace Tral
 
+#endif // __TRAL_INDEXEDSTRING_H__

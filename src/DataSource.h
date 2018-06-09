@@ -13,20 +13,25 @@
 // limitations under the License.
 
 
-#include "IndexedContainer.h"
+#ifndef __TRAL_DATASOURCE_H__
+#define TRAL_SRC_DATASOURCE_H_
+
+
+#include <string>
 
 namespace Tral
 {
 
-	IndexedContainer::IndexedContainer( DataSource* data_source )
-		: _data_source( data_source )
-		, _string_list()
+	class DataSource
 	{
-	}
+	public:
+		DataSource();
+		~DataSource();
 
+		std::string get_string( unsigned offset ) const;
+		unsigned    get_size() const;
+	};
 
-	IndexedContainer::~IndexedContainer()
-	{
-	}
+} // namespace Tral
 
-} /* namespace Tral */
+#endif // TRAL_SRC_DATASOURCE_H_

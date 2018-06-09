@@ -1,5 +1,5 @@
 // Copyright 2018 Roman Tremaskin. All Rights Reserved.
-
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -29,7 +29,8 @@ namespace Tral
 		List();
 		~List();
 
-		std::string get_string() const;
+		std::string get_row( int index ) const;
+		int         get_row_count() const;
 
 	private:
 		class ListImpl;

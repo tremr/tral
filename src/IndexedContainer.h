@@ -1,5 +1,5 @@
 // Copyright 2018 Roman Tremaskin. All Rights Reserved.
-
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -17,23 +17,25 @@
 #define __TRAL_INDEXEDCONTAINER_H__
 
 
-#include "IndexedString.h"
+#include "src/IndexedString.h"
 #include <list>
 
 
 namespace Tral
 {
+	class DataSource;
 
 	class IndexedContainer
 	{
 	public:
-		IndexedContainer();
+		IndexedContainer( DataSource* data_source );
 		~IndexedContainer();
 
 	private:
 		typedef std::list<IndexedString> StringList;
 
-		StringList _string_list;
+		DataSource* const _data_source;
+		StringList        _string_list;
 	};
 
 } // namespace Tral

@@ -13,20 +13,31 @@
 // limitations under the License.
 
 
-#include "IndexedContainer.h"
+#include "src/DataSource.h"
+
 
 namespace Tral
 {
 
-	IndexedContainer::IndexedContainer( DataSource* data_source )
-		: _data_source( data_source )
-		, _string_list()
+	DataSource::DataSource()
 	{
 	}
 
 
-	IndexedContainer::~IndexedContainer()
+	DataSource::~DataSource()
 	{
 	}
 
-} /* namespace Tral */
+
+	std::string DataSource::get_string( unsigned offset ) const
+	{
+		return "<font style='color:#00A900;background-color:#FF0000'>Mar 26 06:52:59 <font style='color:#6495ED;background-color:#FFA500'>marked fragment</font> 2639.118 1677 filtered fragment</font>";
+	}
+
+
+	unsigned DataSource::get_size() const
+	{
+		return 3;
+	}
+
+} // namespace Tral

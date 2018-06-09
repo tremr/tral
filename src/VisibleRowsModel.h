@@ -13,61 +13,37 @@
 // limitations under the License.
 
 
-#include "include/list.h"
-#include "src/VisibleRowsModel.h"
-#include "src/DataSource.h"
+#ifndef __TRAL_VISIBLEROWSMODEL_H__
+#define __TRAL_VISIBLEROWSMODEL_H__
+
+
+#include "src/IndexedContainer.h"
+#include <vector>
 
 
 namespace Tral
 {
+	class IndexedString;
 
-	class List::ListImpl
+	class VisibleRowsModel
 	{
 	public:
-		ListImpl() : _data_source(), _model( &_data_source ) {}
+		VisibleRowsModel( DataSource* data_source );
+		~VisibleRowsModel();
 
 		std::string get_row( int index ) const;
 		int         get_row_count() const;
-
 	private:
-		DataSource       _data_source;
-		VisibleRowsModel _model;
+		enum { DefaultCacheSize = 500 };
+
+		int            _row_count;
+		IndexedString* _begin;
+		IndexedString* _end;
+		std::vector<IndexedString*> _cached_rows;
+		int                         _cached_rows_first_index;
+		IndexedContainer _conteiner;
 	};
 
-
-	std::string List::ListImpl::get_row( int index ) const
-	{
-		return _model.get_row( index );
-	}
-
-
-	int List::ListImpl::get_row_count() const
-	{
-		return 3;
-	}
-
-
-	List::List()
-		: _impl( new ListImpl )
-	{}
-
-
-	List::~List()
-	{
-		delete _impl;
-	}
-
-
-	std::string List::get_row( int index ) const
-	{
-		return _impl->get_row( index );
-	}
-
-
-	int List::get_row_count() const
-	{
-		return _impl->get_row_count();
-	}
-
-
 } // namespace Tral
+
+#endif // __TRAL_VISIBLEROWSMODEL_H__

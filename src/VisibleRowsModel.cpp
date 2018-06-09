@@ -13,61 +13,38 @@
 // limitations under the License.
 
 
-#include "include/list.h"
 #include "src/VisibleRowsModel.h"
-#include "src/DataSource.h"
-
+#include "src/IndexedString.h"
 
 namespace Tral
 {
 
-	class List::ListImpl
+	VisibleRowsModel::VisibleRowsModel( DataSource* data_source )
+		: _row_count( 0 )
+		, _begin( nullptr )
+		, _end( nullptr )
+		, _cached_rows( DefaultCacheSize, nullptr )
+		, _cached_rows_first_index( 0 )
+		, _conteiner( data_source )
 	{
-	public:
-		ListImpl() : _data_source(), _model( &_data_source ) {}
-
-		std::string get_row( int index ) const;
-		int         get_row_count() const;
-
-	private:
-		DataSource       _data_source;
-		VisibleRowsModel _model;
-	};
-
-
-	std::string List::ListImpl::get_row( int index ) const
-	{
-		return _model.get_row( index );
+		_row_count = 3; // debug value
 	}
 
 
-	int List::ListImpl::get_row_count() const
+	VisibleRowsModel::~VisibleRowsModel()
 	{
-		return 3;
 	}
 
 
-	List::List()
-		: _impl( new ListImpl )
-	{}
-
-
-	List::~List()
+	std::string VisibleRowsModel::get_row( int index ) const
 	{
-		delete _impl;
+		return "<font style='color:#00A900;background-color:#FF0000'>Mar 26 06:52:59 <font style='color:#6495ED;background-color:#FFA500'>marked fragment</font> 2639.118 1677 filtered fragment</font>";
 	}
 
 
-	std::string List::get_row( int index ) const
+	int VisibleRowsModel::get_row_count() const
 	{
-		return _impl->get_row( index );
+		return _row_count;
 	}
-
-
-	int List::get_row_count() const
-	{
-		return _impl->get_row_count();
-	}
-
 
 } // namespace Tral

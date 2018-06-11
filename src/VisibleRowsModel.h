@@ -17,13 +17,14 @@
 #define __TRAL_VISIBLEROWSMODEL_H__
 
 
-#include "src/IndexedContainer.h"
+#include <string>
 #include <vector>
 
 
 namespace Tral
 {
 	class IndexedString;
+	class DataSource;
 
 	class VisibleRowsModel
 	{
@@ -33,15 +34,11 @@ namespace Tral
 
 		std::string get_row( int index ) const;
 		int         get_row_count() const;
-	private:
-		enum { DefaultCacheSize = 500 };
 
+	private:
 		int            _row_count;
 		IndexedString* _begin;
 		IndexedString* _end;
-		std::vector<IndexedString*> _cached_rows;
-		int                         _cached_rows_first_index;
-		IndexedContainer _conteiner;
 	};
 
 } // namespace Tral

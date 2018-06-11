@@ -16,6 +16,7 @@
 #include "src/VisibleRowsModel.h"
 #include "src/IndexedString.h"
 
+
 namespace Tral
 {
 
@@ -23,9 +24,6 @@ namespace Tral
 		: _row_count( 0 )
 		, _begin( nullptr )
 		, _end( nullptr )
-		, _cached_rows( DefaultCacheSize, nullptr )
-		, _cached_rows_first_index( 0 )
-		, _conteiner( data_source )
 	{
 		_row_count = 3; // debug value
 	}
@@ -38,6 +36,21 @@ namespace Tral
 
 	std::string VisibleRowsModel::get_row( int index ) const
 	{
+//		//TODO(roman.tremaskin): Can be optimized.
+//		if (index < _cached_rows_first_index)
+//		{
+//			int relative_index = index - _cached_rows_first_index;
+//			_conteiner.get_string( relative_index );
+//		}
+//		else if (index >= _cached_rows_first_index + _cached_rows.size())
+//		{
+//
+//		}
+//		else
+//		{
+//			return _cached_rows[index - _cached_rows_first_index]->get_string().value;
+//		}
+
 		return "<font style='color:#00A900;background-color:#FF0000'>Mar 26 06:52:59 <font style='color:#6495ED;background-color:#FFA500'>marked fragment</font> 2639.118 1677 filtered fragment</font>";
 	}
 
@@ -48,3 +61,4 @@ namespace Tral
 	}
 
 } // namespace Tral
+

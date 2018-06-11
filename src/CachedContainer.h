@@ -13,34 +13,33 @@
 // limitations under the License.
 
 
-#ifndef __TRAL_INDEXEDCONTAINER_H__
-#define __TRAL_INDEXEDCONTAINER_H__
+#ifndef TRAL_SRC_CACHEDCONTAINER_H_
+#define TRAL_SRC_CACHEDCONTAINER_H_
 
 
-#include "src/IndexedString.h"
-#include <list>
+#include "src/IndexedContainer.h"
 
 
 namespace Tral
 {
-	class DataSource;
 
-	class IndexedContainer
+	class CachedContainer
 	{
 	public:
-		IndexedContainer( DataSource* data_source );
-		~IndexedContainer();
+		CachedContainer( DataSource* data_source );
+		~CachedContainer();
 
-		IndexedString const* get_previous( IndexedString const* string );
-		IndexedString const* get_next( IndexedString const* string );
+		void move_cached_rows( int index );
 
 	private:
-		typedef std::list<IndexedString> StringList;
+		enum { DefaultCacheSize = 500 };
 
-		DataSource* const _data_source;
-		StringList        _string_list;
+		IndexedContainer _conteiner;
+		std::vector<IndexedString const*> _cached_rows;
+		int                               _cached_rows_first_index;
 	};
 
 } // namespace Tral
 
-#endif // __TRAL_INDEXEDCONTAINER_H__
+
+#endif /* TRAL_SRC_CACHEDCONTAINER_H_ */

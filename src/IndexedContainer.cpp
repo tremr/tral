@@ -29,4 +29,17 @@ namespace Tral
 	{
 	}
 
+
+	const IndexedString* Tral::IndexedContainer::get_previous( const IndexedString* string )
+	{
+		return nullptr;
+	}
+
+
+	const IndexedString* Tral::IndexedContainer::get_next( const IndexedString* string )
+	{
+		return nullptr;
+	}
+
 } /* namespace Tral */
+

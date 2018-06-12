@@ -37,6 +37,7 @@ namespace Tral
 		IndexedContainer _conteiner;
 		std::vector<IndexedString const*> _cached_rows;
 		int                               _cached_rows_first_index;
+		int                               _size;
 	};
 
 } // namespace Tral

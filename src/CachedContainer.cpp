@@ -22,8 +22,9 @@ namespace Tral
 
 	CachedContainer::CachedContainer( DataSource* data_source )
 		: _conteiner( data_source )
-		, _cached_rows( DefaultCacheSize )
+		, _cached_rows( DefaultCacheSize, nullptr )
 		, _cached_rows_first_index( 0 )
+		, _size( 0 )
 	{
 	}
 
@@ -36,30 +37,56 @@ namespace Tral
 	void CachedContainer::move_cached_rows( int index )
 	{
 		int const reserved = _cached_rows.capacity();
-		int const size     = _cached_rows.size();
-		assert( reserved >= 0 && size >= 0 );
+		assert( reserved >= 0 && _size >= 0 && _size <= reserved );
 
 		int const move_to_left  = std::max( _cached_rows_first_index - index, 0 );
-		int const move_to_right = std::min( index - _cached_rows_first_index + size, 0 );
+		int const move_to_right = std::min( index - _cached_rows_first_index - _size, 0 );
 
 		// Moving to the left:
-		// a. if cache not full
-		for (int i = size - move_to_left; i >= 0 && i < size && _cached_rows.size() < reserved; ++i)
-			_cached_rows.push_back( _cached_rows[i] );
-		// b. shift cache elements
-		for (int i = size - move_to_left; i < size && i >= move_to_left; --i)
-			_cached_rows[i] = _cached_rows[i - move_to_left];
-		// c. add new cache elements
-		for (int i = move_to_left - 1; i >= 0; --i)
+		if (move_to_left > 0)
 		{
-			_cached_rows[i] = _conteiner.get_previous( _cached_rows[i] );
-			assert( _cached_rows[i] != nullptr );
+			_size = std::min( _size + move_to_left, reserved );
+			for (int i = _size - 1; i > move_to_left; --i)
+			{
+				_cached_rows[i] = _cached_rows[i - move_to_left];
+			}
+
+			for (int i = move_to_left, k = i - 1; i > 0; --i, --k)
+			{
+				_cached_rows[k] = _conteiner.get_previous( _cached_rows[i] );
+				assert( _cached_rows[k] != nullptr ); // Unexpected begin of data stream obtained. This should not happen if the stream remains constant and data is only added.
+
+				if (_cached_rows[k] == nullptr)
+				{
+					_size -= i;
+					for (int j = 0; j < _size; ++j)
+						_cached_rows[j] = _cached_rows[j + i];
+
+					break;
+				}
+			}
+
+			_cached_rows_first_index -= move_to_left;
 		}
 
-		// Moving to the right.
+		// Moving to the right:
+		if (move_to_right > 0)
+		{
+			int i = move_to_right;
+			for (; i < _size; ++i)
+				_cached_rows[i - move_to_right] = _cached_rows[i];
 
+			do
+			{
+				_cached_rows[i] = _conteiner.get_next( _cached_rows[i - 1] );
+			}
+			while (i < reserved && _cached_rows[i] != nullptr);
 
-		assert( _cached_rows.capacity() == reserved );
+			_size = i;
+			_cached_rows_first_index += move_to_right;
+		}
+
+		assert( _cached_rows.capacity() == reserved && _size >= 0 && _size <= reserved );
 	}
 
 } // namespace Tral

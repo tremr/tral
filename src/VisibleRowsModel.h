@@ -17,6 +17,7 @@
 #define __TRAL_VISIBLEROWSMODEL_H__
 
 
+#include "src/CachedContainer.h"
 #include <string>
 #include <vector>
 
@@ -36,9 +37,10 @@ namespace Tral
 		int         get_row_count() const;
 
 	private:
-		int            _row_count;
-		IndexedString* _begin;
-		IndexedString* _end;
+		mutable CachedContainer _cached_container;
+		int             _row_count;
+		IndexedString*  _begin;
+		IndexedString*  _end;
 	};
 
 } // namespace Tral

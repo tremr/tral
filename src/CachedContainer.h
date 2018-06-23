@@ -29,13 +29,21 @@ namespace Tral
 		CachedContainer( DataSource* data_source );
 		~CachedContainer();
 
+		std::string get_row( int index );
+		int         get_row_count() const;
+		void        reset();
+
 		void move_cached_rows( int index );
 
 	private:
-		enum { DefaultCacheSize = 500 };
+		enum
+		{
+			DefaultUICacheSize    = 320,
+			NativeCacheRedundancy = 3,
+		};
 
 		IndexedContainer _conteiner;
-		std::vector<IndexedString const*> _cached_rows;
+		std::vector<IndexedContainer::ConstIterator> _cached_rows;
 		int                               _cached_rows_first_index;
 		int                               _size;
 	};

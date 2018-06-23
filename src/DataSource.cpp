@@ -21,6 +21,10 @@ namespace Tral
 
 	DataSource::DataSource()
 	{
+		for (size_t i = 0; i < 10000; ++i)
+		{
+			_data.push_back( std::string("-") + std::to_string( i ) + "-" );
+		}
 	}
 
 
@@ -29,15 +33,27 @@ namespace Tral
 	}
 
 
-	std::string DataSource::get_string( unsigned offset ) const
+	unsigned DataSource::get_string( unsigned offset, std::string& out_string ) const
 	{
-		return "<font style='color:#00A900;background-color:#FF0000'>Mar 26 06:52:59 <font style='color:#6495ED;background-color:#FFA500'>marked fragment</font> 2639.118 1677 filtered fragment</font>";
+		unsigned next_offset = 0;
+		if (offset < _data.size())
+		{
+			out_string = _data.at( offset );
+			next_offset = offset + 1;
+		}
+		else
+		{
+			out_string = "";
+		}
+
+//		out_string = "<font style='color:#00A900;background-color:#FF0000'>Mar 26 06:52:59 <font style='color:#6495ED;background-color:#FFA500'>marked fragment</font> 2639.118 1677 filtered fragment</font>";
+		return next_offset < _data.size() ? next_offset : 0;
 	}
 
 
 	unsigned DataSource::get_size() const
 	{
-		return 3;
+		return _data.size();
 	}
 
 } // namespace Tral

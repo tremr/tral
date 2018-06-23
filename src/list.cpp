@@ -43,7 +43,7 @@ namespace Tral
 
 	int List::ListImpl::get_row_count() const
 	{
-		return 3;
+		return _model.get_row_count();
 	}
 
 

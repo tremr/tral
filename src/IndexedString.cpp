@@ -19,15 +19,23 @@
 namespace Tral
 {
 
-	IndexedString::IndexedString()
-		: _offset( 0 )
-		, _value()
+	IndexedString::IndexedString( unsigned offset, std::string value )
+		: _offset( offset )
+		, _value( value )
 		, _filter_links()
 	{
 	}
+
 
 	IndexedString::~IndexedString()
 	{
 	}
 
+
+	std::string Tral::IndexedString::get_value() const
+	{
+		return _value;
+	}
+
 } /* namespace Tral */
+

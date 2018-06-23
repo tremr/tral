@@ -27,16 +27,24 @@ namespace Tral
 
 	class IndexedContainer
 	{
-	public:
-		IndexedContainer( DataSource* data_source );
-		~IndexedContainer();
-
-		IndexedString const* get_previous( IndexedString const* string );
-		IndexedString const* get_next( IndexedString const* string );
-
 	private:
 		typedef std::list<IndexedString> StringList;
 
+	public:
+		typedef StringList::const_iterator ConstIterator;
+
+		IndexedContainer( DataSource* data_source );
+		~IndexedContainer();
+
+		ConstIterator begin();
+		ConstIterator invalid_iterator() const;
+		ConstIterator get_previous( ConstIterator string );
+		ConstIterator get_next( ConstIterator string );
+		unsigned      get_size() const { return _string_list.size(); }
+
+		void reload();
+
+	private:
 		DataSource* const _data_source;
 		StringList        _string_list;
 	};

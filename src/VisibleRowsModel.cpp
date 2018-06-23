@@ -21,7 +21,8 @@ namespace Tral
 {
 
 	VisibleRowsModel::VisibleRowsModel( DataSource* data_source )
-		: _row_count( 0 )
+		: _cached_container( data_source )
+		, _row_count( 0 )
 		, _begin( nullptr )
 		, _end( nullptr )
 	{
@@ -36,28 +37,13 @@ namespace Tral
 
 	std::string VisibleRowsModel::get_row( int index ) const
 	{
-//		//TODO(roman.tremaskin): Can be optimized.
-//		if (index < _cached_rows_first_index)
-//		{
-//			int relative_index = index - _cached_rows_first_index;
-//			_conteiner.get_string( relative_index );
-//		}
-//		else if (index >= _cached_rows_first_index + _cached_rows.size())
-//		{
-//
-//		}
-//		else
-//		{
-//			return _cached_rows[index - _cached_rows_first_index]->get_string().value;
-//		}
-
-		return "<font style='color:#00A900;background-color:#FF0000'>Mar 26 06:52:59 <font style='color:#6495ED;background-color:#FFA500'>marked fragment</font> 2639.118 1677 filtered fragment</font>";
+		return _cached_container.get_row( index );
 	}
 
 
 	int VisibleRowsModel::get_row_count() const
 	{
-		return _row_count;
+		return _cached_container.get_row_count();
 	}
 
 } // namespace Tral

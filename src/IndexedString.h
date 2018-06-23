@@ -28,8 +28,10 @@ namespace Tral
 	class IndexedString
 	{
 	public:
-		IndexedString();
+		IndexedString( unsigned offset, std::string value );
 		~IndexedString();
+
+		std::string get_value() const;
 
 	private:
 		typedef int FilterLink;

@@ -18,6 +18,7 @@
 
 
 #include <string>
+#include <vector>
 
 namespace Tral
 {
@@ -28,8 +29,11 @@ namespace Tral
 		DataSource();
 		~DataSource();
 
-		std::string get_string( unsigned offset ) const;
+		unsigned get_string( unsigned offset, std::string& out_string ) const;
 		unsigned    get_size() const;
+
+	private:
+		std::vector<std::string> _data;
 	};
 
 } // namespace Tral

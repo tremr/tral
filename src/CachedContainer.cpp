@@ -150,9 +150,6 @@ namespace Tral
 			it = _conteiner.get_next( it );
 		}
 
-		if (move_to_right > 0)
-			assert( _size == reserved );
-
 		_cached_rows_first_index = new_cache_begin;
 		assert( _cached_rows.capacity() == reserved && _size > 0 && _size <= reserved );
 	}

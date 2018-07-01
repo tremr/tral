@@ -11,3 +11,4 @@ set(SOURCE_LIB ${SOURCE_LIB} src/list.cpp)
 set(SOURCE_LIB ${SOURCE_LIB} src/VisibleRowsModel.cpp)
 
 add_library(tral STATIC ${SOURCE_LIB})
+custom_enable_cxx17( tral )

@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-project(tral VERSION 0.1 DESCRIPTION "tral")
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+project(tral)
 
 include_directories( ${CMAKE_SOURCE_DIR}/tral )
 

@@ -23,10 +23,21 @@
 namespace Tral
 {
 
+	class Callback
+	{
+	public:
+		virtual void on_insert_rows_begin( unsigned first, unsigned last ) = 0;
+		virtual void on_insert_rows_end( unsigned first, unsigned last ) = 0;
+
+	protected:
+		virtual ~Callback() {}
+	};
+
+
 	class List
 	{
 	public:
-		List();
+		List( Callback* callback );
 		~List();
 
 		std::string get_row( int index ) const;

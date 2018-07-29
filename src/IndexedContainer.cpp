@@ -15,32 +15,35 @@
 
 #include "src/IndexedContainer.h"
 #include "src/DataSource.h"
+#include "include/list.h"
 #include <cassert>
-
+#include <iostream>
 
 namespace Tral
 {
 
-	IndexedContainer::IndexedContainer( DataSource* data_source )
+	IndexedContainer::IndexedContainer( DataSource* data_source,  Callback* callback )
 		: _data_source( data_source )
 		, _string_list()
+		, _mutex()
+		, _thread()
+		, _callback( callback )
 	{
 		assert( _data_source != nullptr );
-		reload();
+		reload( invalid_iterator(), invalid_iterator() );
 	}
 
 
 	IndexedContainer::~IndexedContainer()
 	{
+		_thread.join();
 	}
 
 
 	IndexedContainer::ConstIterator IndexedContainer::begin()
 	{
-		if (!_string_list.empty())
-			return _string_list.begin();
-
-		return invalid_iterator();
+		ReadOnlyLock lock(_mutex);
+		return _string_list.empty() ? invalid_iterator() : _string_list.begin();
 	}
 
 
@@ -55,6 +58,7 @@ namespace Tral
 	{
 		assert( string != invalid_iterator() );
 
+		ReadOnlyLock lock(_mutex);
 		if (string == _string_list.begin())
 			return invalid_iterator();
 
@@ -66,14 +70,35 @@ namespace Tral
 	{
 		assert( string != invalid_iterator() );
 
+		ReadOnlyLock lock(_mutex);
 		return ++string;
 	}
 
 
-	void IndexedContainer::reload()
+	unsigned IndexedContainer::get_size() const
 	{
-		_string_list.clear();
+		ReadOnlyLock lock(_mutex);
+		std::cout << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+		return _string_list.size();
+	}
+
+
+	void IndexedContainer::reload( ConstIterator first_cached, ConstIterator last_cached )
+	{
+		int const first_offset = first_cached != invalid_iterator() ? first_cached->get_offset() : 0;
+		int const last_offset  = last_cached != invalid_iterator() ? last_cached->get_offset() : 0;
+
+		_thread = std::thread( &IndexedContainer::reload_thread_function, this );
+	}
+
+
+	void IndexedContainer::reload_thread_function()
+	{
 		assert( _data_source != nullptr );
+		{
+			ReadWriteLock lock(_mutex);
+			_string_list.clear();
+		}
 
 		unsigned offset = 0;
 		std::string string;
@@ -82,7 +107,14 @@ namespace Tral
 			unsigned const string_offset = offset;
 			offset = _data_source->get_string( string_offset, string );
 
-			_string_list.push_back( IndexedString( string_offset, string ) );
+			std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+
+			_callback->on_insert_rows_begin( _string_list.size(), _string_list.size() );
+			{
+				ReadWriteLock lock(_mutex);
+				_string_list.push_back( IndexedString( string_offset, string ) );
+			}
+			_callback->on_insert_rows_end( _string_list.size() - 1, _string_list.size() - 1 );
 		}
 		while( offset != 0 );
 	}

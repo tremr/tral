@@ -32,6 +32,7 @@ namespace Tral
 		~IndexedString();
 
 		std::string get_value() const;
+		unsigned    get_offset() const { return _offset; }
 
 	private:
 		typedef int FilterLink;

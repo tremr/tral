@@ -15,13 +15,14 @@
 
 #include "src/VisibleRowsModel.h"
 #include "src/IndexedString.h"
+#include "include/list.h"
 
 
 namespace Tral
 {
 
-	VisibleRowsModel::VisibleRowsModel( DataSource* data_source )
-		: _cached_container( data_source )
+	VisibleRowsModel::VisibleRowsModel( DataSource* data_source,  Callback* callback )
+		: _cached_container( data_source, callback )
 		, _row_count( 0 )
 		, _begin( nullptr )
 		, _end( nullptr )

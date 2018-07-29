@@ -26,11 +26,12 @@ namespace Tral
 {
 	class IndexedString;
 	class DataSource;
+	class Callback;
 
 	class VisibleRowsModel
 	{
 	public:
-		VisibleRowsModel( DataSource* data_source );
+		VisibleRowsModel( DataSource* data_source, Callback* callback );
 		~VisibleRowsModel();
 
 		std::string get_row( int index ) const;

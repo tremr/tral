@@ -19,11 +19,14 @@
 
 #include "src/IndexedString.h"
 #include <list>
+#include <shared_mutex>
+#include <thread>
 
 
 namespace Tral
 {
 	class DataSource;
+	class Callback;
 
 	class IndexedContainer
 	{
@@ -33,20 +36,28 @@ namespace Tral
 	public:
 		typedef StringList::const_iterator ConstIterator;
 
-		IndexedContainer( DataSource* data_source );
+		IndexedContainer( DataSource* data_source,  Callback* callback );
 		~IndexedContainer();
 
 		ConstIterator begin();
 		ConstIterator invalid_iterator() const;
 		ConstIterator get_previous( ConstIterator string );
 		ConstIterator get_next( ConstIterator string );
-		unsigned      get_size() const { return _string_list.size(); }
-
-		void reload();
+		unsigned      get_size() const;
+		void          reload( ConstIterator first_cached, ConstIterator last_cached );
 
 	private:
-		DataSource* const _data_source;
-		StringList        _string_list;
+		typedef std::shared_timed_mutex       SharedMutex;
+		typedef std::shared_lock<SharedMutex> ReadOnlyLock;
+		typedef std::unique_lock<SharedMutex> ReadWriteLock;
+
+		void reload_thread_function();
+
+		DataSource* const   _data_source;
+		StringList          _string_list;
+		mutable SharedMutex _mutex;
+		std::thread         _thread;
+		Callback*           _callback;
 	};
 
 } // namespace Tral

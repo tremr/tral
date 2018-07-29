@@ -23,10 +23,12 @@
 namespace Tral
 {
 
+	class Callback;
+
 	class CachedContainer
 	{
 	public:
-		CachedContainer( DataSource* data_source );
+		CachedContainer( DataSource* data_source,  Callback* callback );
 		~CachedContainer();
 
 		std::string get_row( int index );

@@ -21,8 +21,8 @@
 namespace Tral
 {
 
-	CachedContainer::CachedContainer( DataSource* data_source )
-		: _conteiner( data_source )
+	CachedContainer::CachedContainer( DataSource* data_source, Callback* callback )
+		: _conteiner( data_source, callback )
 		, _cached_rows( DefaultUICacheSize * NativeCacheRedundancy, _conteiner.invalid_iterator() )
 		, _cached_rows_first_index( -1 )
 		, _size( 0 )
@@ -43,6 +43,12 @@ namespace Tral
 		int new_cache_begin          = _cached_rows_first_index;
 
 		assert( shift_with_reserve < cache_capacity );
+
+		if (_size == 0) // TODO: this must be unnecessary.
+		{
+			reset();
+			return "no data";
+		}
 
 		if (index < _cached_rows_first_index)
 			new_cache_begin = std::max( index - shift_with_reserve, 0 );

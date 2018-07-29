@@ -24,7 +24,7 @@ namespace Tral
 	class List::ListImpl
 	{
 	public:
-		ListImpl() : _data_source(), _model( &_data_source ) {}
+		ListImpl( Callback* callback ) : _data_source(), _model( &_data_source, callback ) {}
 
 		std::string get_row( int index ) const;
 		int         get_row_count() const;
@@ -47,8 +47,8 @@ namespace Tral
 	}
 
 
-	List::List()
-		: _impl( new ListImpl )
+	List::List(  Callback* callback  )
+		: _impl( new ListImpl( callback ) )
 	{}
 
 

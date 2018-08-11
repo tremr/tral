@@ -22,7 +22,8 @@ namespace Tral
 {
 
 	CachedContainer::CachedContainer( DataSource* data_source, Callback* callback )
-		: _conteiner( data_source, callback )
+		: Log( "CachedContainer" )
+		, _conteiner( data_source, callback )
 		, _cached_rows( DefaultUICacheSize * NativeCacheRedundancy, _conteiner.invalid_iterator() )
 		, _cached_rows_first_index( -1 )
 		, _size( 0 )
@@ -58,12 +59,12 @@ namespace Tral
 		move_cached_rows( new_cache_begin );
 		assert( index - _cached_rows_first_index >= 0 );
 
-		std::cout << __FUNCTION__ << ":: _cached_rows_first_index:" << _cached_rows_first_index << " _size:" << _size << " index:" << index;
+		log() << __FUNCTION__ << ":: _cached_rows_first_index:" << _cached_rows_first_index << " _size:" << _size << " index:" << index;
 
 		assert( index - _cached_rows_first_index < _size );
 		assert( _cached_rows[index - _cached_rows_first_index] != _conteiner.invalid_iterator() );
 
-		std::cout << " value:" << _cached_rows[index - _cached_rows_first_index]->get_value() << std::endl;
+		log() << " value:" << _cached_rows[index - _cached_rows_first_index]->get_value() << std::endl;
 
 		return _cached_rows[index - _cached_rows_first_index]->get_value();
 

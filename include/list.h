@@ -23,6 +23,18 @@
 namespace Tral
 {
 
+	class Log
+	{
+	public:
+		Log( std::string const& name ) : _name( name ) {}
+
+		std::ostream& log() const;
+
+	private:
+		std::string const _name;
+	};
+
+
 	class Callback
 	{
 	public:

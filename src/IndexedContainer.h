@@ -18,6 +18,7 @@
 
 
 #include "src/IndexedString.h"
+#include "include/List.h"
 #include <list>
 #include <shared_mutex>
 #include <thread>
@@ -28,7 +29,7 @@ namespace Tral
 	class DataSource;
 	class Callback;
 
-	class IndexedContainer
+	class IndexedContainer : private Log
 	{
 	private:
 		typedef std::list<IndexedString> StringList;

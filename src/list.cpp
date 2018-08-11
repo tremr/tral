@@ -13,10 +13,12 @@
 // limitations under the License.
 
 
-#include "include/list.h"
+#include "include/List.h"
 #include "src/VisibleRowsModel.h"
 #include "src/DataSource.h"
-
+#include <iostream>
+#include <chrono>
+#include <iomanip>
 
 namespace Tral
 {
@@ -34,6 +36,37 @@ namespace Tral
 		VisibleRowsModel _model;
 	};
 
+
+	std::ostream& Log::log() const
+	{
+		int const DayInSeconds = 86400;
+
+		auto now          = std::chrono::high_resolution_clock::now();
+		auto duration     = now.time_since_epoch();
+
+		duration         %= std::chrono::duration<long long int, std::ratio<DayInSeconds>>( 1 );
+		auto hours        = std::chrono::duration_cast<std::chrono::hours>( duration );
+
+		duration         %= std::chrono::hours( 1 );
+		auto minutes      = std::chrono::duration_cast<std::chrono::minutes>( duration );
+
+		duration         %= std::chrono::minutes( 1 );
+		auto seconds      = std::chrono::duration_cast<std::chrono::seconds>( duration );
+
+		duration         %= std::chrono::seconds( 1 );
+		auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>( duration );
+
+		duration         %= std::chrono::milliseconds( 1 );
+		auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( duration );
+
+		std::cout << std::setw(2) << std::right << std::setfill( '0' ) << hours.count()        << ".";
+		std::cout << std::setw(2) << std::right << std::setfill( '0' ) << minutes.count()      << ".";
+		std::cout << std::setw(2) << std::right << std::setfill( '0' ) << seconds.count()      << ":";
+		std::cout << std::setw(3) << std::right << std::setfill( '0' ) << milliseconds.count() << ".";
+		std::cout << std::setw(3) << std::right << std::setfill( '0' ) << microseconds.count() << " ";
+
+		return std::cout << _name << "::";
+	}
 
 	std::string List::ListImpl::get_row( int index ) const
 	{

@@ -18,6 +18,7 @@
 
 
 #include "src/IndexedContainer.h"
+#include "include/List.h"
 
 
 namespace Tral
@@ -25,7 +26,8 @@ namespace Tral
 
 	class Callback;
 
-	class CachedContainer
+
+	class CachedContainer : private Log
 	{
 	public:
 		CachedContainer( DataSource* data_source,  Callback* callback );

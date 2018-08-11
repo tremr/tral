@@ -15,7 +15,7 @@
 
 #include "src/VisibleRowsModel.h"
 #include "src/IndexedString.h"
-#include "include/list.h"
+#include "include/List.h"
 
 
 namespace Tral

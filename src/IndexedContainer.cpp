@@ -15,7 +15,7 @@
 
 #include "src/IndexedContainer.h"
 #include "src/DataSource.h"
-#include "include/list.h"
+#include "include/List.h"
 #include <cassert>
 #include <iostream>
 
@@ -23,7 +23,8 @@ namespace Tral
 {
 
 	IndexedContainer::IndexedContainer( DataSource* data_source,  Callback* callback )
-		: _data_source( data_source )
+		: Log( "IndexedContainer" )
+		, _data_source( data_source )
 		, _string_list()
 		, _mutex()
 		, _thread()
@@ -78,7 +79,7 @@ namespace Tral
 	unsigned IndexedContainer::get_size() const
 	{
 		ReadOnlyLock lock(_mutex);
-		std::cout << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 		return _string_list.size();
 	}
 

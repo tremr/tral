@@ -36,6 +36,8 @@ namespace Tral
 
 		std::string get_row( int index ) const;
 		int         get_row_count() const;
+		void        lock();
+		void        unlock();
 
 	private:
 		mutable CachedContainer _cached_container;

@@ -64,7 +64,7 @@ namespace Tral
 		assert( index - _cached_rows_first_index < _size );
 		assert( _cached_rows[index - _cached_rows_first_index] != _conteiner.invalid_iterator() );
 
-		log() << " value:" << _cached_rows[index - _cached_rows_first_index]->get_value() << std::endl;
+		std::cout << " value:" << _cached_rows[index - _cached_rows_first_index]->get_value() << std::endl;
 
 		return _cached_rows[index - _cached_rows_first_index]->get_value();
 
@@ -75,6 +75,18 @@ namespace Tral
 	int CachedContainer::get_row_count() const
 	{
 		return _conteiner.get_size();
+	}
+
+
+	void CachedContainer::lock()
+	{
+		_conteiner.lock();
+	}
+
+
+	void CachedContainer::unlock()
+	{
+		_conteiner.unlock();
 	}
 
 

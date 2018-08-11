@@ -35,6 +35,8 @@ namespace Tral
 
 		std::string get_row( int index );
 		int         get_row_count() const;
+		void        lock();
+		void        unlock();
 		void        reset();
 
 		void move_cached_rows( int index );

@@ -30,6 +30,8 @@ namespace Tral
 
 		std::string get_row( int index ) const;
 		int         get_row_count() const;
+		void        lock();
+		void        unlock();
 
 	private:
 		DataSource       _data_source;
@@ -80,6 +82,18 @@ namespace Tral
 	}
 
 
+	void List::ListImpl::lock()
+	{
+		_model.lock();
+	}
+
+
+	void List::ListImpl::unlock()
+	{
+		_model.unlock();
+	}
+
+
 	List::List(  Callback* callback  )
 		: _impl( new ListImpl( callback ) )
 	{}
@@ -102,5 +116,16 @@ namespace Tral
 		return _impl->get_row_count();
 	}
 
+
+	void List::lock()
+	{
+		_impl->lock();
+	}
+
+
+	void List::unlock()
+	{
+		_impl->unlock();
+	}
 
 } // namespace Tral

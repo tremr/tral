@@ -47,5 +47,17 @@ namespace Tral
 		return _cached_container.get_row_count();
 	}
 
+
+	void VisibleRowsModel::lock()
+	{
+		_cached_container.lock();
+	}
+
+
+	void VisibleRowsModel::unlock()
+	{
+		_cached_container.unlock();
+	}
+
 } // namespace Tral
 

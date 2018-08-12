@@ -38,6 +38,7 @@ namespace Tral
 		void        lock();
 		void        unlock();
 		void        reset();
+		void        remove_row( IndexedContainer::ConstIterator& it );
 
 		void move_cached_rows( int index );
 

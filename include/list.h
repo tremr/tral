@@ -40,6 +40,8 @@ namespace Tral
 	public:
 		virtual void on_insert_rows_begin( unsigned first, unsigned last ) = 0;
 		virtual void on_insert_rows_end( unsigned first, unsigned last ) = 0;
+		virtual void on_remove_rows_begin( unsigned first, unsigned last ) = 0;
+		virtual void on_remove_rows_end( unsigned first, unsigned last ) = 0;
 
 	protected:
 		virtual ~Callback() {}

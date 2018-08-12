@@ -15,6 +15,7 @@
 
 #include "src/IndexedContainer.h"
 #include "src/DataSource.h"
+#include "src/CachedContainer.h"
 #include "include/List.h"
 #include <cassert>
 #include <iostream>
@@ -22,7 +23,7 @@
 namespace Tral
 {
 
-	IndexedContainer::IndexedContainer( DataSource* data_source,  Callback* callback )
+	IndexedContainer::IndexedContainer( DataSource* data_source,  Callback* callback, CachedContainer* cache )
 		: Log( "IndexedContainer" )
 		, _data_source( data_source )
 		, _string_list()
@@ -30,6 +31,7 @@ namespace Tral
 		, _thread_mutex()
 		, _thread()
 		, _callback( callback )
+		, _cache( cache )
 	{
 		assert( _data_source != nullptr );
 		reload( invalid_iterator(), invalid_iterator() );
@@ -143,7 +145,32 @@ namespace Tral
 			_thread_mutex.lock();
 			_thread_mutex.unlock();
 		}
-		while( offset != 0 );
+		while (offset != 0);
+
+		ConstIterator it = _string_list.begin();
+		int i = 0;
+		while (it != _string_list.end())
+		{
+			assert( i < _string_list.size() );
+
+//			std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+
+			_callback->on_remove_rows_begin( i, i );
+			_thread_mutex.lock();
+			_thread_mutex.unlock();
+//			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+			{
+				it = _string_list.erase( it );
+				ReadWriteLock lock(_list_mutex);
+				_cache->remove_row( it );
+				++it;
+				++i;
+			}
+//			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+			_callback->on_remove_rows_end( i, i );
+			_thread_mutex.lock();
+			_thread_mutex.unlock();
+		}
 	}
 
 } /* namespace Tral */

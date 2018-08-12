@@ -23,7 +23,7 @@ namespace Tral
 
 	CachedContainer::CachedContainer( DataSource* data_source, Callback* callback )
 		: Log( "CachedContainer" )
-		, _conteiner( data_source, callback )
+		, _conteiner( data_source, callback, this )
 		, _cached_rows( DefaultUICacheSize * NativeCacheRedundancy, _conteiner.invalid_iterator() )
 		, _cached_rows_first_index( -1 )
 		, _size( 0 )
@@ -101,6 +101,25 @@ namespace Tral
 			_cached_rows_first_index = 0;
 			_size = 1;
 		}
+	}
+
+
+	void CachedContainer::remove_row( IndexedContainer::ConstIterator& indexed_it )
+	{
+		auto it = _cached_rows.begin();
+		auto end = _cached_rows.end();
+		for (; it != end; ++it)
+		{
+			if (*it == indexed_it)
+				break;
+		}
+
+		if (it == end) return;
+
+		_cached_rows.erase( it );
+		IndexedContainer::ConstIterator indexed_to_add = _conteiner.get_next( *_cached_rows.rbegin() );
+		if (indexed_to_add != _conteiner.invalid_iterator())
+			_cached_rows.push_back( indexed_to_add );
 	}
 
 

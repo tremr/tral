@@ -28,6 +28,7 @@ namespace Tral
 {
 	class DataSource;
 	class Callback;
+	class CachedContainer;
 
 	class IndexedContainer : private Log
 	{
@@ -37,7 +38,7 @@ namespace Tral
 	public:
 		typedef StringList::const_iterator ConstIterator;
 
-		IndexedContainer( DataSource* data_source,  Callback* callback );
+		IndexedContainer( DataSource* data_source,  Callback* callback, CachedContainer* cache );
 		~IndexedContainer();
 
 		ConstIterator begin();
@@ -62,6 +63,7 @@ namespace Tral
 		mutable SharedMutex _thread_mutex;
 		std::thread         _thread;
 		Callback*           _callback;
+		CachedContainer*    _cache;
 	};
 
 } // namespace Tral

@@ -95,7 +95,8 @@ namespace Tral
 
 
 	List::List(  Callback* callback  )
-		: _impl( new ListImpl( callback ) )
+		: Log( "List" )
+		, _impl( new ListImpl( callback ) )
 	{}
 
 
@@ -107,13 +108,18 @@ namespace Tral
 
 	std::string List::get_row( int index ) const
 	{
+		log() << __FUNCTION__ << ": index " << index << std::endl;
 		return _impl->get_row( index );
 	}
 
 
 	int List::get_row_count() const
 	{
-		return _impl->get_row_count();
+		int result = _impl->get_row_count();
+
+		log() << __FUNCTION__ << ": count " << result << std::endl;
+
+		return result;
 	}
 
 

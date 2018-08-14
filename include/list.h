@@ -48,7 +48,7 @@ namespace Tral
 	};
 
 
-	class List
+	class List : private Log
 	{
 	public:
 		List( Callback* callback );

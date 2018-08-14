@@ -24,10 +24,10 @@ namespace Tral
 	CachedContainer::CachedContainer( DataSource* data_source, Callback* callback )
 		: Log( "CachedContainer" )
 		, _conteiner( data_source, callback, this )
-		, _cached_rows( DefaultUICacheSize * NativeCacheRedundancy, _conteiner.invalid_iterator() )
+		, _cached_rows()
 		, _cached_rows_first_index( -1 )
-		, _size( 0 )
 	{
+		_cached_rows.reserve( DefaultUICacheSize * NativeCacheRedundancy );
 		reset();
 	}
 
@@ -43,25 +43,21 @@ namespace Tral
 		int const shift_with_reserve = cache_capacity / NativeCacheRedundancy;
 		int new_cache_begin          = _cached_rows_first_index;
 
-		assert( shift_with_reserve < cache_capacity );
-
-		if (_size == 0) // TODO: this must be unnecessary.
-		{
-			reset();
-			return "no data";
-		}
+		assert( _cached_rows_first_index >= 0 );
+		assert( shift_with_reserve <= cache_capacity );
+		assert( _conteiner.get_size() != 0 );
 
 		if (index < _cached_rows_first_index)
 			new_cache_begin = std::max( index - shift_with_reserve, 0 );
-		else if (index > _cached_rows_first_index + _size - 1)
+		else if (index > _cached_rows_first_index + _cached_rows.size() - 1)
 			new_cache_begin = std::max( index - cache_capacity + shift_with_reserve, 0 );
 
 		move_cached_rows( new_cache_begin );
 		assert( index - _cached_rows_first_index >= 0 );
 
-		log() << __FUNCTION__ << ":: _cached_rows_first_index:" << _cached_rows_first_index << " _size:" << _size << " index:" << index;
+		log() << __FUNCTION__ << ":: _cached_rows_first_index:" << _cached_rows_first_index << " size:" << _cached_rows.size() << " index:" << index;
 
-		assert( index - _cached_rows_first_index < _size );
+		assert( index - _cached_rows_first_index < _cached_rows.size() );
 		assert( _cached_rows[index - _cached_rows_first_index] != _conteiner.invalid_iterator() );
 
 		std::cout << " value:" << _cached_rows[index - _cached_rows_first_index]->get_value() << std::endl;
@@ -92,15 +88,10 @@ namespace Tral
 
 	void CachedContainer::reset()
 	{
-		_cached_rows_first_index = -1;
-		_size = 0;
-		_cached_rows[0] = _conteiner.begin();
-
-		if (_cached_rows[0] != _conteiner.invalid_iterator())
-		{
-			_cached_rows_first_index = 0;
-			_size = 1;
-		}
+		log() << __FUNCTION__ << std::endl;
+		_cached_rows.clear();
+		_cached_rows_first_index = 0;
+		move_cached_rows( 0 );
 	}
 
 
@@ -125,9 +116,10 @@ namespace Tral
 
 	void CachedContainer::move_cached_rows( int new_cache_begin )
 	{
-		int const reserved = _cached_rows.capacity();
-		assert( reserved > 0 && _size > 0 && _size <= reserved );
+		size_t const reserved = _cached_rows.capacity();
+		assert( reserved > 0 );
 		assert( new_cache_begin >= 0 );
+		assert( new_cache_begin == 0 ||  _cached_rows.size() > 0 );
 
 		int const move_to_left  = std::max( _cached_rows_first_index - new_cache_begin, 0 );
 		int const move_to_right = std::max( new_cache_begin - _cached_rows_first_index, 0 );
@@ -136,25 +128,27 @@ namespace Tral
 		if (move_to_left > 0)
 		{
 			assert( move_to_right == 0 );
-			_size = std::min( _size + move_to_left, reserved );
+			IndexedContainer::ConstIterator indexed_it = _cached_rows[0];
 
-			int i = _size - 1;
+			int new_size = std::min( _cached_rows.size() + move_to_left, reserved );
+			_cached_rows.resize( new_size );
+
+			int i = _cached_rows.size() - 1;
 			for (; i >= move_to_left; --i)                     // Existing cache will be partially saved.
 			{
 				_cached_rows[i] = _cached_rows[i - move_to_left];
 			}
 
-			IndexedContainer::ConstIterator it = _cached_rows[0];
-			int const left_jump = move_to_left - _size;
-			for (int j = 0; j < left_jump; ++j)                // Cache will be fully updated after jump to the left.
+			int const left_long_jump = move_to_left - _cached_rows.size();
+			for (int j = 0; j < left_long_jump; ++j)                // Cache will be fully updated after jump to the left. Lets find indexed iterator at the right border of _cached_rows after jump.
 			{
-				it = _conteiner.get_previous( it );
-				assert( it != _conteiner.invalid_iterator() ); // Unexpected begin of data stream obtained. This should not happen if the stream remains constant and data is only adding.
+				indexed_it = _conteiner.get_previous( indexed_it );
+				assert( indexed_it != _conteiner.invalid_iterator() ); // Unexpected begin of data stream obtained. This should not happen if the stream remains constant and data is only adding.
 			}
 
 			for (; i >= 0; --i)                                // Fill the cache if it needed.
 			{
-				_cached_rows[i] = it = _conteiner.get_previous( it );
+				_cached_rows[i] = indexed_it = _conteiner.get_previous( indexed_it );
 				assert( _cached_rows[i] != _conteiner.invalid_iterator() ); // Unexpected begin of data stream obtained. This should not happen if the stream remains constant and data is only adding.
 			}
 		}
@@ -163,33 +157,45 @@ namespace Tral
 		if (move_to_right > 0)
 		{
 			assert( move_to_left == 0 );
+			IndexedContainer::ConstIterator indexed_it = *_cached_rows.rbegin();
 
-			for (int i = move_to_right; i < _size; ++i)        // Existing cache will be partially saved.
-			{
-				assert( i - move_to_right >= 0 );
+			for (int i = move_to_right; i < _cached_rows.size(); ++i)        // Existing cache will be partially saved.
 				_cached_rows[i - move_to_right] = _cached_rows[i];
-			}
 
-			IndexedContainer::ConstIterator it = _cached_rows[_size - 1];
-			int const right_jump = move_to_right - _size + 1;
-			for (int j = 0; j < right_jump; ++j)               // Cache will be fully updated after jump to the right.
+			int const right_long_jump = move_to_right - _cached_rows.size() + 1;
+			for (int j = 0; j < right_long_jump; ++j)               // Cache will be fully updated after jump to the right.
 			{
-				_cached_rows[0] = it = _conteiner.get_next( it );
-				assert( it != _conteiner.invalid_iterator() ); // Unexpected end of data stream obtained. This should not happen if the stream remains constant and data is only adding.
+				_cached_rows[0] = indexed_it = _conteiner.get_next( indexed_it );
+				assert( indexed_it != _conteiner.invalid_iterator() ); // Unexpected end of data stream obtained. This should not happen if the stream remains constant and data is only adding.
 			}
 
-			_size = std::max( _size - move_to_right, 1 );      // Size would equal to 1 if it was a jump to right.
+			assert( static_cast<int>( _cached_rows.size() ) >= 0 );
+			_cached_rows.resize( std::max( static_cast<int>( _cached_rows.size() ) - move_to_right, 1 ) ); // Size would equal to 1 if it was a jump to right.
 		}
 
-		IndexedContainer::ConstIterator it = _conteiner.get_next( _cached_rows[_size - 1] );
-		while (_size < reserved && it != _conteiner.invalid_iterator()) // If cache not full try to fill it.
+		if (_cached_rows.empty())
 		{
-			_cached_rows[_size++] = it;
-			it = _conteiner.get_next( it );
+			log() << __FUNCTION__ << ": empty cache will be filled from begin of indexed list." << std::endl;
+
+			IndexedContainer::ConstIterator indexed_it = _conteiner.begin();
+			if (indexed_it == _conteiner.invalid_iterator())
+			{
+				log() << __FUNCTION__ << ": indexed list empty." << std::endl;
+				return;
+			}
+
+			_cached_rows.push_back( indexed_it );
+		}
+
+		IndexedContainer::ConstIterator indexed_it = _conteiner.get_next( *_cached_rows.rbegin() );
+		while (_cached_rows.size() < reserved && indexed_it != _conteiner.invalid_iterator()) // If cache not full try to fill it.
+		{
+			_cached_rows.push_back( indexed_it );
+			indexed_it = _conteiner.get_next( indexed_it );
 		}
 
 		_cached_rows_first_index = new_cache_begin;
-		assert( _cached_rows.capacity() == reserved && _size > 0 && _size <= reserved );
+		assert( _cached_rows.capacity() == reserved && _cached_rows.size() > 0 && _cached_rows.size() <= reserved );
 	}
 
 } // namespace Tral

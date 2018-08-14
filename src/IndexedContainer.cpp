@@ -158,15 +158,15 @@ namespace Tral
 			_callback->on_remove_rows_begin( i, i );
 			_thread_mutex.lock();
 			_thread_mutex.unlock();
-//			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 			{
-				it = _string_list.erase( it );
-				ReadWriteLock lock(_list_mutex);
 				_cache->remove_row( it );
+				ReadWriteLock lock(_list_mutex);
+				it = _string_list.erase( it );
 				++it;
 				++i;
 			}
-//			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 			_callback->on_remove_rows_end( i, i );
 			_thread_mutex.lock();
 			_thread_mutex.unlock();

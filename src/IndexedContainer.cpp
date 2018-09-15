@@ -27,8 +27,6 @@ namespace Tral
 		: Log( "IndexedContainer" )
 		, _data_source( data_source )
 		, _string_list()
-		, _list_mutex()
-		, _thread_mutex()
 		, _thread()
 		, _callback( callback )
 		, _cache( cache )
@@ -47,7 +45,6 @@ namespace Tral
 	IndexedContainer::ConstIterator IndexedContainer::begin()
 	{
 //		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-		ReadOnlyLock lock(_list_mutex);
 		return _string_list.empty() ? invalid_iterator() : _string_list.begin();
 	}
 
@@ -64,7 +61,6 @@ namespace Tral
 		assert( string != invalid_iterator() );
 
 //		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-		ReadOnlyLock lock(_list_mutex);
 		if (string == _string_list.begin())
 			return invalid_iterator();
 
@@ -77,7 +73,6 @@ namespace Tral
 		assert( string != invalid_iterator() );
 
 //		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-		ReadOnlyLock lock(_list_mutex);
 		return ++string;
 	}
 
@@ -85,7 +80,6 @@ namespace Tral
 	unsigned IndexedContainer::get_size() const
 	{
 //		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-		ReadOnlyLock lock(_list_mutex);
 		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 		return _string_list.size();
 	}
@@ -100,26 +94,11 @@ namespace Tral
 	}
 
 
-	void IndexedContainer::lock()
-	{
-//		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-		_thread_mutex.lock_shared();
-	}
-
-
-	void IndexedContainer::unlock()
-	{
-//		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-		_thread_mutex.unlock_shared();
-	}
-
-
 	void IndexedContainer::reload_thread_function()
 	{
 		assert( _data_source != nullptr );
 		{
 			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-			ReadWriteLock lock(_list_mutex);
 			_string_list.clear();
 		}
 
@@ -133,17 +112,10 @@ namespace Tral
 //			std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
 
 			_callback->on_insert_rows_begin( _string_list.size(), _string_list.size() );
-			_thread_mutex.lock();
-			_thread_mutex.unlock();
 //			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-			{
-				ReadWriteLock lock(_list_mutex);
-				_string_list.push_back( IndexedString( string_offset, string ) );
-			}
+			_string_list.push_back( IndexedString( string_offset, string ) );
 //			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 			_callback->on_insert_rows_end( _string_list.size() - 1, _string_list.size() - 1 );
-			_thread_mutex.lock();
-			_thread_mutex.unlock();
 		}
 		while (offset != 0);
 
@@ -156,20 +128,15 @@ namespace Tral
 //			std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
 
 			_callback->on_remove_rows_begin( i, i );
-			_thread_mutex.lock();
-			_thread_mutex.unlock();
 			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-			{
-				_cache->remove_row( it );
-				ReadWriteLock lock(_list_mutex);
-				it = _string_list.erase( it );
-				++it;
-				++i;
-			}
+
+			_cache->remove_row( it );
+			it = _string_list.erase( it );
+			++it;
+			++i;
+
 			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 			_callback->on_remove_rows_end( i, i );
-			_thread_mutex.lock();
-			_thread_mutex.unlock();
 		}
 	}
 

@@ -74,18 +74,6 @@ namespace Tral
 	}
 
 
-	void CachedContainer::lock()
-	{
-		_conteiner.lock();
-	}
-
-
-	void CachedContainer::unlock()
-	{
-		_conteiner.unlock();
-	}
-
-
 	void CachedContainer::reset()
 	{
 		log() << __FUNCTION__ << std::endl;

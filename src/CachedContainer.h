@@ -35,8 +35,6 @@ namespace Tral
 
 		std::string get_row( int index );
 		int         get_row_count() const;
-		void        lock();
-		void        unlock();
 		void        reset();
 		void        remove_row( IndexedContainer::ConstIterator& it );
 

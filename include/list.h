@@ -54,10 +54,14 @@ namespace Tral
 		List( Callback* callback );
 		~List();
 
+		// The internal thread waits for the corresponding function to be called after each callback.
+		void insert_rows_begin_ok();
+		void insert_rows_end_ok();
+		void remove_rows_begin_ok();
+		void remove_rows_end_ok();
+
 		std::string get_row( int index ) const;
 		int         get_row_count() const;
-		void        lock();
-		void        unlock();
 
 	private:
 		class ListImpl;

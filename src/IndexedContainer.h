@@ -47,8 +47,6 @@ namespace Tral
 		ConstIterator get_next( ConstIterator string );
 		unsigned      get_size() const;
 		void          reload( ConstIterator first_cached, ConstIterator last_cached );
-		void          lock();
-		void          unlock();
 
 	private:
 		typedef std::shared_timed_mutex       SharedMutex;
@@ -59,7 +57,6 @@ namespace Tral
 
 		DataSource* const   _data_source;
 		StringList          _string_list;
-		mutable SharedMutex _list_mutex;
 		mutable SharedMutex _thread_mutex;
 		std::thread         _thread;
 		Callback*           _callback;

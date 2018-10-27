@@ -49,7 +49,7 @@ namespace Tral
 
 		if (index < _cached_rows_first_index)
 			new_cache_begin = std::max( index - shift_with_reserve, 0 );
-		else if (index > _cached_rows_first_index + _cached_rows.size() - 1)
+		else if (index > _cached_rows_first_index + static_cast<int>( _cached_rows.size() ) - 1)
 			new_cache_begin = std::max( index - cache_capacity + shift_with_reserve, 0 );
 
 		move_cached_rows( new_cache_begin );
@@ -57,7 +57,7 @@ namespace Tral
 
 		log() << __FUNCTION__ << ":: _cached_rows_first_index:" << _cached_rows_first_index << " size:" << _cached_rows.size() << " index:" << index;
 
-		assert( index - _cached_rows_first_index < _cached_rows.size() );
+		assert( index - _cached_rows_first_index < static_cast<int>( _cached_rows.size() ) );
 		assert( _cached_rows[index - _cached_rows_first_index] != _conteiner.invalid_iterator() );
 
 		std::cout << " value:" << _cached_rows[index - _cached_rows_first_index]->get_value() << std::endl;
@@ -85,20 +85,16 @@ namespace Tral
 
 	void CachedContainer::remove_row( IndexedContainer::ConstIterator& indexed_it )
 	{
-		auto it = _cached_rows.begin();
-		auto end = _cached_rows.end();
-		for (; it != end; ++it)
-		{
-			if (*it == indexed_it)
-				break;
-		}
+		if (_cached_rows.empty())
+			return;
 
-		if (it == end) return;
-
-		_cached_rows.erase( it );
 		IndexedContainer::ConstIterator indexed_to_add = _conteiner.get_next( *_cached_rows.rbegin() );
 		if (indexed_to_add != _conteiner.invalid_iterator())
 			_cached_rows.push_back( indexed_to_add );
+
+		auto it = std::find( _cached_rows.begin(), _cached_rows.end(), indexed_it );
+		if (it != _cached_rows.end())
+			_cached_rows.erase( it );
 	}
 
 
@@ -147,7 +143,7 @@ namespace Tral
 			assert( move_to_left == 0 );
 			IndexedContainer::ConstIterator indexed_it = *_cached_rows.rbegin();
 
-			for (int i = move_to_right; i < _cached_rows.size(); ++i)        // Existing cache will be partially saved.
+			for (int i = move_to_right; i < static_cast<int>( _cached_rows.size() ); ++i)        // Existing cache will be partially saved.
 				_cached_rows[i - move_to_right] = _cached_rows[i];
 
 			int const right_long_jump = move_to_right - _cached_rows.size() + 1;

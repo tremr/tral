@@ -23,13 +23,18 @@ namespace Tral
 		: _offset( offset )
 		, _value( value )
 		, _filter_links()
-	{
-	}
+	{}
+
+
+	IndexedString::IndexedString( IndexedString&& other )
+		: _offset( other._offset )
+		, _value( std::move( other._value ) )
+		, _filter_links( std::move( other._filter_links ) )
+	{}
 
 
 	IndexedString::~IndexedString()
-	{
-	}
+	{}
 
 
 	std::string Tral::IndexedString::get_value() const

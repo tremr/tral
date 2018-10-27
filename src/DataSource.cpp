@@ -21,7 +21,7 @@ namespace Tral
 
 	DataSource::DataSource()
 	{
-		for (size_t i = 0; i < 10000; ++i)
+		for (size_t i = 0; i < 3; ++i)
 		{
 			_data.push_back( std::string("-") + std::to_string( i ) + "-" );
 		}

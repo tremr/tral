@@ -18,8 +18,8 @@
 
 
 #include "src/IndexedString.h"
+#include "src/IndexedList.h"
 #include "include/List.h"
-#include <list>
 #include <shared_mutex>
 #include <thread>
 
@@ -32,16 +32,13 @@ namespace Tral
 
 	class IndexedContainer : private Log
 	{
-	private:
-		typedef std::list<IndexedString> StringList;
-
 	public:
-		typedef StringList::const_iterator ConstIterator;
+		typedef IndexedList::const_visible_iterator ConstIterator;
 
 		IndexedContainer( DataSource* data_source,  Callback* callback, CachedContainer* cache );
 		~IndexedContainer();
 
-		ConstIterator begin();
+		ConstIterator begin() const;
 		ConstIterator invalid_iterator() const;
 		ConstIterator get_previous( ConstIterator string );
 		ConstIterator get_next( ConstIterator string );
@@ -56,7 +53,7 @@ namespace Tral
 		void reload_thread_function();
 
 		DataSource* const   _data_source;
-		StringList          _string_list;
+		IndexedList         _string_list;
 		mutable SharedMutex _thread_mutex;
 		std::thread         _thread;
 		Callback*           _callback;

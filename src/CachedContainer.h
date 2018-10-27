@@ -47,9 +47,9 @@ namespace Tral
 			NativeCacheRedundancy = 3,
 		};
 
-		IndexedContainer _conteiner;
+		IndexedContainer                             _conteiner;
 		std::vector<IndexedContainer::ConstIterator> _cached_rows;
-		int                               _cached_rows_first_index;
+		int                                          _cached_rows_first_index;
 	};
 
 } // namespace Tral

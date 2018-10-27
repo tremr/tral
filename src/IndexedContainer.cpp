@@ -42,17 +42,17 @@ namespace Tral
 	}
 
 
-	IndexedContainer::ConstIterator IndexedContainer::begin()
+	IndexedContainer::ConstIterator IndexedContainer::begin() const
 	{
 //		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-		return _string_list.empty() ? invalid_iterator() : _string_list.begin();
+		return _string_list.visible_begin();
 	}
 
 
 	IndexedContainer::ConstIterator IndexedContainer::invalid_iterator() const
 	{
-		assert( [this]()->bool { static ConstIterator const invalid_it = _string_list.end(); return invalid_it == _string_list.end(); }() );
-		return _string_list.end();
+		assert( [this]()->bool { static ConstIterator const invalid_it = _string_list.visible_end(); return invalid_it == _string_list.visible_end(); }() );
+		return _string_list.visible_end();
 	}
 
 
@@ -61,7 +61,7 @@ namespace Tral
 		assert( string != invalid_iterator() );
 
 //		log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-		if (string == _string_list.begin())
+		if (string == begin())
 			return invalid_iterator();
 
 		return --string;
@@ -87,8 +87,10 @@ namespace Tral
 
 	void IndexedContainer::reload( ConstIterator first_cached, ConstIterator last_cached )
 	{
-		int const first_offset = first_cached != invalid_iterator() ? first_cached->get_offset() : 0;
-		int const last_offset  = last_cached != invalid_iterator() ? last_cached->get_offset() : 0;
+		(void) first_cached;
+		(void) last_cached;
+//		int const first_offset = first_cached != invalid_iterator() ? first_cached->get_offset() : 0;
+//		int const last_offset  = last_cached != invalid_iterator() ? last_cached->get_offset() : 0;
 
 		_thread = std::thread( &IndexedContainer::reload_thread_function, this );
 	}
@@ -104,6 +106,7 @@ namespace Tral
 
 		unsigned offset = 0;
 		std::string string;
+		ConstIterator last_visible_it = _string_list.visible_begin();
 		do
 		{
 			unsigned const string_offset = offset;
@@ -113,30 +116,32 @@ namespace Tral
 
 			_callback->on_insert_rows_begin( _string_list.size(), _string_list.size() );
 //			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
-			_string_list.push_back( IndexedString( string_offset, string ) );
+			IndexedList::iterator it = _string_list.emplace( _string_list.end(), string_offset, std::move( string ) );
+			_string_list.visible_enable( last_visible_it, it );
+
 //			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 			_callback->on_insert_rows_end( _string_list.size() - 1, _string_list.size() - 1 );
 		}
 		while (offset != 0);
 
-		ConstIterator it = _string_list.begin();
-		int i = 0;
-		while (it != _string_list.end())
+		ConstIterator it( _string_list.visible_begin() );
+		unsigned i = 0;
+		while (it != _string_list.visible_end())
 		{
 			assert( i < _string_list.size() );
 
-//			std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+			std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ) );
 
 			_callback->on_remove_rows_begin( i, i );
 			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 
 			_cache->remove_row( it );
-			it = _string_list.erase( it );
-			++it;
-			++i;
+			it = _string_list.erase_visible( it );
+//			++it;
 
 			log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
 			_callback->on_remove_rows_end( i, i );
+//			++i;
 		}
 	}
 

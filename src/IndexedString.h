@@ -29,6 +29,7 @@ namespace Tral
 	{
 	public:
 		IndexedString( unsigned offset, std::string value );
+		IndexedString( IndexedString&& other );
 		~IndexedString();
 
 		std::string get_value() const;
@@ -37,6 +38,8 @@ namespace Tral
 	private:
 		typedef int FilterLink;
 		typedef std::vector<FilterLink> FilterLinkList;
+
+		IndexedString( IndexedString const& other );
 
 		unsigned       _offset;
 		std::string    _value;

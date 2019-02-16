@@ -25,6 +25,19 @@
 namespace Tral
 {
 
+	class LockedMutex
+	{
+	public:
+		LockedMutex() { _mutex.lock(); }
+		~LockedMutex() { _mutex.unlock(); }
+
+		void lock() { _mutex.lock(); }
+		void unlock() { _mutex.unlock(); }
+
+	private:
+		std::recursive_mutex _mutex;
+	};
+
 	class List::ListImpl : Callback
 	{
 	public:
@@ -46,12 +59,13 @@ namespace Tral
 		int         get_row_count() const;
 
 	private:
-		DataSource       _data_source;
-		VisibleRowsModel _model;
-		Callback*        _callback;
-
-		mutable std::recursive_mutex _begin_sync_mutex;
+		mutable LockedMutex          _begin_sync_holder;
 		mutable std::recursive_mutex _end_sync_mutex;
+
+		DataSource       _data_source;
+		Callback*        _callback;
+		VisibleRowsModel _model;
+
 	};
 
 
@@ -88,26 +102,26 @@ namespace Tral
 
 
 	List::ListImpl::ListImpl( Callback* callback )
-		: _data_source()
-		, _model( &_data_source, this )
+		: _begin_sync_holder()
+		, _data_source()
 		, _callback( callback )
+		, _model( &_data_source, this )
 	{
 		assert( callback != nullptr );
-		_begin_sync_mutex.lock();
 	}
 
 
 	/*virtual*/ void List::ListImpl::on_insert_rows_begin( unsigned first, unsigned last )
 	{
 		_callback->on_insert_rows_begin( first, last );
-		_begin_sync_mutex.lock();
+		_begin_sync_holder.lock();
 	}
 
 
 	/*virtual*/ void List::ListImpl::on_insert_rows_end( unsigned first, unsigned last )
 	{
 		_callback->on_insert_rows_end( first, last );
-		_begin_sync_mutex.unlock();
+		_begin_sync_holder.unlock();
 		_end_sync_mutex.lock();
 		_end_sync_mutex.unlock();
 	}
@@ -116,14 +130,14 @@ namespace Tral
 	/*virtual*/ void List::ListImpl::on_remove_rows_begin( unsigned first, unsigned last )
 	{
 		_callback->on_remove_rows_begin( first, last );
-		_begin_sync_mutex.lock();
+		_begin_sync_holder.lock();
 	}
 
 
 	/*virtual*/ void List::ListImpl::on_remove_rows_end( unsigned first, unsigned last )
 	{
 		_callback->on_remove_rows_end( first, last );
-		_begin_sync_mutex.unlock();
+		_begin_sync_holder.unlock();
 		_end_sync_mutex.lock();
 		_end_sync_mutex.unlock();
 	}
@@ -132,13 +146,13 @@ namespace Tral
 	void List::ListImpl::insert_rows_begin_ok()
 	{
 		_end_sync_mutex.lock();
-		_begin_sync_mutex.unlock();
+		_begin_sync_holder.unlock();
 	}
 
 
 	void List::ListImpl::insert_rows_end_ok()
 	{
-		_begin_sync_mutex.lock();
+		_begin_sync_holder.lock();
 		_end_sync_mutex.unlock();
 	}
 
@@ -146,27 +160,27 @@ namespace Tral
 	void List::ListImpl::remove_rows_begin_ok()
 	{
 		_end_sync_mutex.lock();
-		_begin_sync_mutex.unlock();
+		_begin_sync_holder.unlock();
 	}
 
 
 	void List::ListImpl::remove_rows_end_ok()
 	{
-		_begin_sync_mutex.lock();
+		_begin_sync_holder.lock();
 		_end_sync_mutex.unlock();
 	}
 
 
 	std::string List::ListImpl::get_row( int index ) const
 	{
-		std::lock_guard<std::recursive_mutex> lock( _begin_sync_mutex );
+		std::lock_guard<LockedMutex> lock( _begin_sync_holder );
 		return _model.get_row( index );
 	}
 
 
 	int List::ListImpl::get_row_count() const
 	{
-		std::lock_guard<std::recursive_mutex> lock( _begin_sync_mutex );
+		std::lock_guard<LockedMutex> lock( _begin_sync_holder );
 		return _model.get_row_count();
 	}
 

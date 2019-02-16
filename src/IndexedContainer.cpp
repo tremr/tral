@@ -124,6 +124,52 @@ namespace Tral
 		}
 		while (offset != 0);
 
+
+		{
+			ConstIterator it( _string_list.visible_begin() );
+			unsigned i = 0;
+			while (it != _string_list.visible_end())
+			{
+				assert( i < _string_list.size() );
+
+				std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+
+				_callback->on_remove_rows_begin( i, i );
+				log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+
+				_cache->remove_row( it );
+				it = _string_list.visible_disable( it );
+				++it;
+
+				log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+				_callback->on_remove_rows_end( i, i );
+	//			++i;
+			}
+		}
+
+		{
+			IndexedList::iterator it( _string_list.visible_begin() );
+			ConstIterator last_visible_it( _string_list.visible_begin() );
+			unsigned i = 0;
+			while (it != _string_list.end())
+			{
+				assert( i < _string_list.size() );
+
+				std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+
+				_callback->on_insert_rows_begin( i, i );
+				log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+
+				last_visible_it = _string_list.visible_enable( last_visible_it, it );
+				++it;
+
+				log() << __FUNCTION__ << "::" << _string_list.size() << std::endl;
+				_callback->on_insert_rows_end( i, i );
+				++i;
+			}
+		}
+
+
 		ConstIterator it( _string_list.visible_begin() );
 		unsigned i = 0;
 		while (it != _string_list.visible_end())

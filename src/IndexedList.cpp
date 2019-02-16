@@ -176,8 +176,6 @@ namespace Tral
 
 	IndexedList::visible_iterator IndexedList::visible_enable( const_visible_iterator nearest_visible, iterator pos )
 	{
-		assert( nearest_visible != pos );
-
 		if (pos.to_list_iterator()->is_visible( _string_list, _first_visible ))
 			return visible_iterator( pos );
 
@@ -189,6 +187,8 @@ namespace Tral
 			assert_visibility();
 			return _first_visible;
 		}
+
+		assert( nearest_visible != pos );
 
 		if (nearest_visible == visible_end())
 			nearest_visible = visible_begin();
@@ -245,37 +245,17 @@ namespace Tral
 
 		base_list::const_iterator node      = pos.base().to_list_iterator();
 		base_list::iterator       prev_node = node->prev;
-		bool const                visible   = node->is_visible( _string_list, _first_visible );
+		base_list::iterator       next_node = node->next;
+		assert( node->is_visible( _string_list, _first_visible ) );
 
-		if (prev_node != _string_list.end())
-		{
-			assert( prev_node->next == node );
-			prev_node->next = node->next;
-			node->prev      = _string_list.end();
-		}
-		else if (visible)
-		{
-			assert( _first_visible == node );
-			_first_visible = node->next;
-		}
+		if (prev_node != _string_list.end()) prev_node->next = next_node;
+		else                                 _first_visible  = next_node;
 
-		if (node->next != _string_list.end())
-		{
-			assert( node->next->prev == node );
-			node->next->prev = prev_node;
-			node->next = _string_list.end();
-		}
-		else if (visible)
-		{
-			assert( _last_visible == node );
-			_last_visible = node->prev;
-		}
+		if (next_node != _string_list.end()) next_node->prev = prev_node;
+		else                                 _last_visible   = prev_node;
 
-		if (visible)
-		{
-			assert( _visible_count != 0 );
-			_visible_count--;
-		}
+		assert( _visible_count != 0 );
+		_visible_count--;
 
 		assert_visibility();
 		return visible_iterator( prev_node != _string_list.end() ? prev_node : _first_visible );

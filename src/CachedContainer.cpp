@@ -83,6 +83,24 @@ namespace Tral
 	}
 
 
+	int CachedContainer::get_row_index( IndexedContainer::ConstIterator& indexed_it )
+	{
+		auto it = std::find( _cached_rows.begin(), _cached_rows.end(), indexed_it );
+		if (it == _cached_rows.end())
+			return -1;
+
+		assert( it - _cached_rows.begin() >= 0 );
+		return it - _cached_rows.begin();
+	}
+
+
+	void CachedContainer::remove_row( int index )
+	{
+		assert( index < _cached_rows.size() );
+		_cached_rows.erase( _cached_rows.begin() + index );
+	}
+
+
 	void CachedContainer::remove_row( IndexedContainer::ConstIterator& indexed_it )
 	{
 		if (_cached_rows.empty())

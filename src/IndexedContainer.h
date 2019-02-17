@@ -50,7 +50,8 @@ namespace Tral
 		typedef std::shared_lock<SharedMutex> ReadOnlyLock;
 		typedef std::unique_lock<SharedMutex> ReadWriteLock;
 
-		void reload_thread_function();
+		ConstIterator make_invisible( ConstIterator it );
+		void          reload_thread_function();
 
 		DataSource* const   _data_source;
 		IndexedList         _string_list;

@@ -45,11 +45,16 @@ namespace Tral
 		virtual ~ListImpl() override {}
 
 		// Callback
+		virtual void on_critical_section_begin() override;
+		virtual void on_critical_section_end() override;
 		virtual void on_insert_rows_begin( unsigned first, unsigned last ) override;
 		virtual void on_insert_rows_end( unsigned first, unsigned last ) override;
 		virtual void on_remove_rows_begin( unsigned first, unsigned last ) override;
 		virtual void on_remove_rows_end( unsigned first, unsigned last ) override;
 
+
+		void critical_section_begin_ok();
+		void critical_section_end_ok();
 		void insert_rows_begin_ok();
 		void insert_rows_end_ok();
 		void remove_rows_begin_ok();
@@ -111,6 +116,22 @@ namespace Tral
 	}
 
 
+	/*virtual*/ void List::ListImpl::on_critical_section_begin()
+	{
+		_callback->on_critical_section_begin();
+		_begin_sync_holder.lock();
+	}
+
+
+	/*virtual*/ void List::ListImpl::on_critical_section_end()
+	{
+		_callback->on_critical_section_end();
+		_begin_sync_holder.unlock();
+		_end_sync_mutex.lock();
+		_end_sync_mutex.unlock();
+	}
+
+
 	/*virtual*/ void List::ListImpl::on_insert_rows_begin( unsigned first, unsigned last )
 	{
 		_callback->on_insert_rows_begin( first, last );
@@ -139,6 +160,20 @@ namespace Tral
 		_callback->on_remove_rows_end( first, last );
 		_begin_sync_holder.unlock();
 		_end_sync_mutex.lock();
+		_end_sync_mutex.unlock();
+	}
+
+
+	void List::ListImpl::critical_section_begin_ok()
+	{
+		_end_sync_mutex.lock();
+		_begin_sync_holder.unlock();
+	}
+
+
+	void List::ListImpl::critical_section_end_ok()
+	{
+		_begin_sync_holder.lock();
 		_end_sync_mutex.unlock();
 	}
 
@@ -194,6 +229,18 @@ namespace Tral
 	List::~List()
 	{
 		delete _impl;
+	}
+
+
+	void List::critical_section_begin_ok()
+	{
+		_impl->critical_section_begin_ok();
+	}
+
+
+	void List::critical_section_end_ok()
+	{
+		_impl->critical_section_end_ok();
 	}
 
 

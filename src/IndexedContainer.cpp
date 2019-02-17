@@ -96,6 +96,30 @@ namespace Tral
 	}
 
 
+	IndexedContainer::ConstIterator IndexedContainer::make_invisible( ConstIterator it )
+	{
+		int const index = _cache->get_row_index( it );
+
+		if (index >= 0)
+		{
+			_callback->on_remove_rows_begin( index, index );
+			log() << __FUNCTION__ << ":: element " << index << " of " << _string_list.visible_size() << "visible elements" << std::endl;
+			_cache->remove_row( index );
+			it = _string_list.visible_disable( it );
+			_callback->on_remove_rows_end( index, index );
+		}
+		else
+		{
+			_callback->on_critical_section_begin();
+			log() << __FUNCTION__ << ":: not cached element of " << _string_list.visible_size() << "visible elements" << std::endl;
+			it = _string_list.visible_disable( it );
+			_callback->on_critical_section_end();
+		}
+
+		return it;
+	}
+
+
 	void IndexedContainer::reload_thread_function()
 	{
 		assert( _data_source != nullptr );
@@ -104,6 +128,7 @@ namespace Tral
 			_string_list.clear();
 		}
 
+		log() << __FUNCTION__ << "::Test fill indexed_container!!! elements count " << _string_list.size() << std::endl;
 		unsigned offset = 0;
 		std::string string;
 		ConstIterator last_visible_it = _string_list.visible_begin();
@@ -124,7 +149,7 @@ namespace Tral
 		}
 		while (offset != 0);
 
-
+		log() << __FUNCTION__ << "::Test make_invisible!!! elements count " << _string_list.size() << std::endl;
 		{
 			ConstIterator it( _string_list.visible_begin() );
 			unsigned i = 0;
@@ -132,21 +157,14 @@ namespace Tral
 			{
 				assert( i < _string_list.size() );
 
-				std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+				std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ) );
+				it = make_invisible( it );
 
-				_callback->on_remove_rows_begin( i, i );
-				log() << __FUNCTION__ << "::visible count" << _string_list.visible_size() << std::endl;
-
-				_cache->remove_row( it );
-				it = _string_list.visible_disable( it );
 				++it;
-
-				log() << __FUNCTION__ << "::visible count" << _string_list.visible_size() << std::endl;
-				_callback->on_remove_rows_end( i, i );
-	//			++i;
 			}
 		}
 
+		log() << __FUNCTION__ << "::Test make_visible!!! elements count " << _string_list.size() << std::endl;
 		{
 			IndexedList::iterator it( _string_list.visible_begin() );
 			ConstIterator last_visible_it( _string_list.visible_begin() );
@@ -155,7 +173,7 @@ namespace Tral
 			{
 				assert( i < _string_list.size() );
 
-				std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+				std::this_thread::sleep_for( std::chrono::milliseconds( 1500 ) );
 
 				_callback->on_insert_rows_begin( i, i );
 				log() << __FUNCTION__ << "::visible count " << _string_list.visible_size() << std::endl;
@@ -169,7 +187,7 @@ namespace Tral
 			}
 		}
 
-
+		log() << __FUNCTION__ << "::Test clearing container!!! elements count " << _string_list.size() << std::endl;
 		ConstIterator it( _string_list.visible_begin() );
 		unsigned i = 0;
 		while (it != _string_list.visible_end())

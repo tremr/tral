@@ -38,6 +38,8 @@ namespace Tral
 	class Callback
 	{
 	public:
+		virtual void on_critical_section_begin() = 0;
+		virtual void on_critical_section_end() = 0;
 		virtual void on_insert_rows_begin( unsigned first, unsigned last ) = 0;
 		virtual void on_insert_rows_end( unsigned first, unsigned last ) = 0;
 		virtual void on_remove_rows_begin( unsigned first, unsigned last ) = 0;
@@ -55,6 +57,8 @@ namespace Tral
 		~List();
 
 		// The internal thread waits for the corresponding function to be called after each callback.
+		void critical_section_begin_ok();
+		void critical_section_end_ok();
 		void insert_rows_begin_ok();
 		void insert_rows_end_ok();
 		void remove_rows_begin_ok();

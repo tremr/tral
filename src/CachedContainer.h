@@ -13,8 +13,8 @@
 // limitations under the License.
 
 
-#ifndef TRAL_SRC_CACHEDCONTAINER_H_
-#define TRAL_SRC_CACHEDCONTAINER_H_
+#ifndef __TRAL_CACHEDCONTAINER_H__
+#define __TRAL_CACHEDCONTAINER_H__
 
 
 #include "src/IndexedContainer.h"
@@ -36,7 +36,10 @@ namespace Tral
 		std::string get_row( int index );
 		int         get_row_count() const;
 		void        reset();
-		int         get_row_index( IndexedContainer::ConstIterator& indexed_it );
+		bool        is_fit_in_cache( int index ) const;
+		int         get_not_cached_row_potential_index( IndexedList::const_iterator indexed_it ) const;
+		int         get_cached_row_index( IndexedContainer::ConstIterator& indexed_it ) const;
+		void        add_row( int index, IndexedContainer::ConstIterator indexed_it );
 		void        remove_row( int index );
 		void        remove_row( IndexedContainer::ConstIterator& indexed_it );
 
@@ -57,4 +60,4 @@ namespace Tral
 } // namespace Tral
 
 
-#endif /* TRAL_SRC_CACHEDCONTAINER_H_ */
+#endif // __TRAL_CACHEDCONTAINER_H__

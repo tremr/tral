@@ -33,7 +33,7 @@ namespace Tral
 
 			Node( base_list& owner, IndexedString&& value ) : prev( owner.end() ), next( owner.end() ), value( std::move( value ) ) {}
 
-			bool is_visible( base_list& owner, base_list::const_iterator first_visible ) const { return prev != owner.end() || next != owner.end() || this == &*first_visible; }
+			bool is_visible( base_list const& owner, base_list::const_iterator first_visible ) const { return prev != owner.end() || next != owner.end() || this == &*first_visible; }
 
 			mutable base_list::iterator prev;
 			mutable base_list::iterator next;
@@ -162,6 +162,7 @@ namespace Tral
 		iterator       insert( const_iterator pos, IndexedString&& value );
 		iterator       emplace( const_iterator pos, unsigned offset, std::string&& value );
 
+		const_visible_iterator get_visible( iterator it ) const;
 		bool                   visible_empty() const;
 		visible_iterator       visible_begin();
 		const_visible_iterator visible_begin() const;

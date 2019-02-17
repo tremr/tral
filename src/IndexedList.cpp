@@ -116,6 +116,15 @@ namespace Tral
 	}
 
 
+	IndexedList::const_visible_iterator IndexedList::get_visible( iterator it ) const
+	{
+		if (it.to_list_iterator()->is_visible( _string_list, _first_visible ))
+			return visible_iterator( it );
+
+		return visible_end();
+	}
+
+
 	bool IndexedList::visible_empty() const
 	{
 		return visible_size() == 0;
@@ -201,7 +210,7 @@ namespace Tral
 		assert( nearest_visible->get_offset() != pos_offset );
 		if (nearest_visible->get_offset() < pos_offset)
 		{
-			while (nearest_visible_node->next != _string_list.end() || nearest_visible_node->next->value.get_offset() < pos_offset)
+			while (nearest_visible_node->next != _string_list.end() && nearest_visible_node->next->value.get_offset() < pos_offset)
 				++nearest_visible_node;
 
 			assert( nearest_visible_node->next != pos_node );
@@ -216,7 +225,7 @@ namespace Tral
 		}
 		else
 		{
-			while (nearest_visible_node->prev != _string_list.end() || nearest_visible_node->prev->value.get_offset() > pos_offset)
+			while (nearest_visible_node->prev != _string_list.end() && nearest_visible_node->prev->value.get_offset() > pos_offset)
 				--nearest_visible_node;
 
 			assert( nearest_visible_node->prev != pos_node );
@@ -253,6 +262,9 @@ namespace Tral
 
 		if (next_node != _string_list.end()) next_node->prev = prev_node;
 		else                                 _last_visible   = prev_node;
+
+		node->prev = _string_list.end();
+		node->next = _string_list.end();
 
 		assert( _visible_count != 0 );
 		_visible_count--;

@@ -82,8 +82,34 @@ namespace Tral
 		move_cached_rows( 0 );
 	}
 
+	bool CachedContainer::is_fit_in_cache( int index ) const
+	{
+		return index < _cached_rows.capacity() - 1;
+	}
 
-	int CachedContainer::get_row_index( IndexedContainer::ConstIterator& indexed_it )
+
+	int CachedContainer::get_not_cached_row_potential_index( IndexedList::const_iterator indexed_it ) const
+	{
+		if (_cached_rows.empty())
+			return 0;
+
+		unsigned const row_offset = indexed_it->get_offset();
+		for (auto it = _cached_rows.begin(), end = _cached_rows.end(); it != end; ++it)
+		{
+			assert( indexed_it != *it );
+
+			if ((*it)->get_offset() > row_offset)
+			{
+				assert( it - _cached_rows.begin() >= 0 );
+				return it - _cached_rows.begin();
+			}
+		}
+
+		return _cached_rows.size();
+	}
+
+
+	int CachedContainer::get_cached_row_index( IndexedContainer::ConstIterator& indexed_it ) const
 	{
 		auto it = std::find( _cached_rows.begin(), _cached_rows.end(), indexed_it );
 		if (it == _cached_rows.end())
@@ -91,6 +117,13 @@ namespace Tral
 
 		assert( it - _cached_rows.begin() >= 0 );
 		return it - _cached_rows.begin();
+	}
+
+
+	void CachedContainer::add_row( int index, IndexedContainer::ConstIterator indexed_it )
+	{
+		assert( is_fit_in_cache( index ) );
+		_cached_rows.insert( _cached_rows.begin() + index, indexed_it );
 	}
 
 

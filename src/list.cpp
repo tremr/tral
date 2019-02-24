@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-#include "include/List.h"
+#include "include/list.h"
 #include "src/VisibleRowsModel.h"
 #include "src/DataSource.h"
 #include <iostream>

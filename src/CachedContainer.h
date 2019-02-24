@@ -18,7 +18,7 @@
 
 
 #include "src/IndexedContainer.h"
-#include "include/List.h"
+#include "include/list.h"
 
 
 namespace Tral

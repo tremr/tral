@@ -16,7 +16,7 @@
 #include "src/IndexedContainer.h"
 #include "src/DataSource.h"
 #include "src/CachedContainer.h"
-#include "include/List.h"
+#include "include/list.h"
 #include <cassert>
 #include <iostream>
 
@@ -223,4 +223,3 @@ namespace Tral
 	}
 
 } /* namespace Tral */
-

@@ -15,7 +15,7 @@
 
 #include "src/VisibleRowsModel.h"
 #include "src/IndexedString.h"
-#include "include/List.h"
+#include "include/list.h"
 
 
 namespace Tral
@@ -48,4 +48,3 @@ namespace Tral
 	}
 
 } // namespace Tral
-

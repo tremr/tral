@@ -19,7 +19,7 @@
 
 #include "src/IndexedString.h"
 #include "src/IndexedList.h"
-#include "include/List.h"
+#include "include/list.h"
 #include <shared_mutex>
 #include <thread>
 
